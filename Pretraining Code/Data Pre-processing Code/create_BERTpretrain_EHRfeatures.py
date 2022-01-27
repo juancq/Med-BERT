@@ -24,8 +24,8 @@ import random
 #import tokenization
 import tensorflow as tf
 import pickle
+from absl import flags
 
-flags = tf.flags
 
 FLAGS = flags.FLAGS
 
@@ -54,7 +54,7 @@ def write_EHRinstance_to_example_files(seqs,max_seq_length, max_predictions_per_
   """Create TF example files from `TrainingInstance`s."""
   writers = []
   for output_file in output_files:
-    writers.append(tf.python_io.TFRecordWriter(output_file))
+    writers.append(tf.io.TFRecordWriter(output_file))
 
   writer_index = 0
   total_written = 0
@@ -122,8 +122,8 @@ def write_EHRinstance_to_example_files(seqs,max_seq_length, max_predictions_per_
     total_written += 1
 
     if seq_index < 20:
-      tf.logging.info("*** Example ***")
-      tf.logging.info("tokens: " , seq)
+      tf.compat.v1.logging.info("*** Example ***")
+      tf.compat.v1.logging.info("tokens: " , seq)
 
       for feature_name in features.keys():
         feature = features[feature_name]
@@ -132,14 +132,14 @@ def write_EHRinstance_to_example_files(seqs,max_seq_length, max_predictions_per_
           values = feature.int64_list.value
         elif feature.float_list.value:
           values = feature.float_list.value
-        tf.logging.info(
+        tf.compat.v1.logging.info(
             "%s: %s" % (feature_name, " ".join([str(x) for x in values])))
       #print (features)
 
   for writer in writers:
     writer.close()
 
-  tf.logging.info("Wrote %d total instances", total_written)
+  tf.compat.v1.logging.info("Wrote %d total instances", total_written)
 
 
 
@@ -227,9 +227,9 @@ def main(_):
   rng = random.Random(FLAGS.random_seed)
 
   output_files = FLAGS.output_file.split(",")
-  tf.logging.info("*** Writing to output files ***")
+  tf.compat.v1.logging.info("*** Writing to output files ***")
   for output_file in output_files:
-    tf.logging.info("  %s", output_file)
+    tf.compat.v1.logging.info("  %s", output_file)
 
 
   write_EHRinstance_to_example_files(train_data,FLAGS.max_seq_length, FLAGS.max_predictions_per_seq,FLAGS.masked_lm_prob,vocab,output_files,rng)
@@ -238,4 +238,4 @@ if __name__ == "__main__":
   flags.mark_flag_as_required("input_file")
   flags.mark_flag_as_required("output_file")
   flags.mark_flag_as_required("vocab_file")
-  tf.app.run()
+  tf.compat.v1.app.run()
